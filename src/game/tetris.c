@@ -10,6 +10,19 @@ char clearedlines[4];
 
 #define RETURN_ON_INPUT 4
 
+static void fisher_yates_shuffle(int *array, int n)
+{
+	int i = 0;
+	int j = 0;
+	int t = 0;
+	for (i = n - 1; i > 0; i--) {
+		j = randnum(i+1);
+		t = array[i];
+		array[i] = array[j];
+		array[j] = t;
+	}
+}
+
 /* process single-player input */
 static int processinput(int tm, int flags);
 
@@ -756,16 +769,22 @@ void setupplayer(struct player *p)
 	p->lines = (game->mode & MODE_BTYPE) ? p->lineslimit : 0;
 }
 
-static int nextpiece(struct tetr *next)
-{
-	int i = randnum(7);
-	player1.piece = *next;
-	gettetrom(next, i);
-	tetr_stats[i]++;
-	drawnext(&player1, next);
-	return movedown(&player1, 0) && movedown(&player1, 0);
-}
+static int nextpiece(struct tetr *next) {
+	static int bag[7] = {0,1,2,3,4,5,6};
+	static int i =7;
 
+	if (i >=7) {
+		i = 0;
+		fisher_yates_shuffle(bag,7);
+	}
+
+	player1.piece = *next;
+	gettetrom(next, bag[i]);
+	tetr_stats[bag[i]]++;
+	i++;
+
+	drawnext(&player1, next);
+	return movedown(&player1,0) && movedown(&player1,0); }
 int startgame_1p()
 {
 	struct tetr next;
