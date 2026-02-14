@@ -15,6 +15,8 @@ else()
     list(APPEND TEXTGFX_SOURCES ansi.c ansi_win.c term.c)
 endif()
 
+
+
 # Create static library
 add_library(textgfx_lib STATIC ${TEXTGFX_SOURCES})
 
@@ -29,3 +31,9 @@ target_include_directories(textgfx_lib PRIVATE
 
 # Compiler flags
 target_compile_options(textgfx_lib PRIVATE -Wall -O2)
+
+# Add curses include directory if curses is enabled
+if(CURSES)
+    target_include_directories(textgfx_lib PRIVATE ${CURSES_INCLUDE_DIRS})
+endif()
+

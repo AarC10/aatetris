@@ -106,6 +106,12 @@ static void resizegamerunning()
 }
 #endif
 
+#if CURSES && !KEY_RESIZE
+/* Stub for when curses is available but KEY_RESIZE is not */
+static void resizemenu(int w, int h) { }
+static void resizegamerunning() { }
+#endif
+
 void upd_termresize()
 {
 #if !CURSES || KEY_RESIZE
