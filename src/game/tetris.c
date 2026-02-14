@@ -769,27 +769,38 @@ void setupplayer(struct player *p)
 	p->lines = (game->mode & MODE_BTYPE) ? p->lineslimit : 0;
 }
 
-static int nextpiece(struct tetr *next) {
-	static int bag[7] = {0,1,2,3,4,5,6};
-	static int i =7;
+static int bag[7] = {0,1,2,3,4,5,6};
+static int bag_index = 7;
 
-	if (i >=7) {
-		i = 0;
-		fisher_yates_shuffle(bag,7);
+static void init_bag() {
+	bag_index = 7; // need to force shuffle on next call
+}
+
+static int get_next_piece_from_bag() {
+	if (bag_index >= 7) {
+		bag_index = 0;
+		fisher_yates_shuffle(bag, 7);
 	}
+	return bag[bag_index++];
+}
+
+static int nextpiece(struct tetr *next) {
+	int piece_type = get_next_piece_from_bag();
 
 	player1.piece = *next;
-	gettetrom(next, bag[i]);
-	tetr_stats[bag[i]]++;
-	i++;
+	gettetrom(next, piece_type);
+	tetr_stats[piece_type]++;
 
 	drawnext(&player1, next);
-	return movedown(&player1,0) && movedown(&player1,0); }
+	return movedown(&player1,0) && movedown(&player1,0);
+}
 int startgame_1p()
 {
 	struct tetr next;
-	int i = randnum(7);
+	int i;
 	int t;
+	init_bag();
+	i = get_next_piece_from_bag();
 	drawgamescreen_1p();
 	gettetrom(&next, i);
 	drawnext(&player1, &next);
